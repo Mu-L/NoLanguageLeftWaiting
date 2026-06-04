@@ -212,8 +212,32 @@ NLLB_TO_LANGUAGE_CODE = {lang["nllb"]: lang["language_code"] for lang in LANGUAG
 LANGUAGE_CODE_TO_NAME = {lang["language_code"]: lang["name"] for lang in LANGUAGES}
 NLLB_TO_NAME = {lang["nllb"]: lang["name"] for lang in LANGUAGES}
 
+LANGUAGE_CODE_ALIASES = {
+    "zh": "zh-CN",
+    "zh-cn": "zh-CN",
+    "zh-hans": "zh-CN",
+    "zh-sg": "zh-CN",
+    "cmn": "zh-CN",
+    "cmn-hans": "zh-CN",
+    "zh-tw": "zh-TW",
+    "zh-hant": "zh-TW",
+    "zh-hk": "zh-TW",
+    "cmn-hant": "zh-TW",
+}
+
+
+def normalize_language_identifier(identifier):
+    if identifier is None:
+        return None
+    normalized = str(identifier).strip()
+    alias_key = normalized.replace("_", "-").lower()
+    return LANGUAGE_CODE_ALIASES.get(alias_key, normalized)
+
 
 def get_nllb_code(language_code_code):
+    language_code_code = normalize_language_identifier(language_code_code)
+    if language_code_code is None:
+        return None
     result = LANGUAGE_CODE_TO_NLLB.get(language_code_code, None)
     if result is not None:
         return result
@@ -228,6 +252,9 @@ def get_language_code_code(nllb_code):
 
 
 def get_language_name_by_language_code(language_code_code):
+    language_code_code = normalize_language_identifier(language_code_code)
+    if language_code_code is None:
+        return None
     result = LANGUAGE_CODE_TO_NAME.get(language_code_code)
     if result is not None:
         return result
@@ -242,6 +269,9 @@ def get_language_name_by_nllb(nllb_code):
 
 
 def get_language_info(identifier, identifier_type="auto"):
+    identifier = normalize_language_identifier(identifier)
+    if identifier is None:
+        return None
     if identifier_type == "auto":
         for lang in LANGUAGES:
             if (lang["name"].lower() == identifier.lower() or 
@@ -267,6 +297,9 @@ def get_language_info(identifier, identifier_type="auto"):
 
 
 def convert_to_nllb_code(language_identifier):
+    language_identifier = normalize_language_identifier(language_identifier)
+    if language_identifier is None:
+        return None
     if language_identifier == 'auto':
         return 'auto'
     
